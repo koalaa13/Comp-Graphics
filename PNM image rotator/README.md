@@ -1,5 +1,5 @@
 # Program that do some conversions with PNM images.
-Argument for program: \<input filename\> \<output filename\> \<convertsion type\>\
+Argument for program: \<input filename\> \<output filename\> \<conversion type\>\
 Available conversion types:\
 0 - inversion\
 1 - horizontal mirror image\
