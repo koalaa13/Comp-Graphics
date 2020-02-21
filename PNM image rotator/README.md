@@ -5,4 +5,4 @@ Available conversion types:\
 1 - horizontal mirror image\
 2 - vertical mirror image\
 3 - rotate 90 degrees clockwise\
-4 - rotate 90 degrees counterclockwise\
+4 - rotate 90 degrees counterclockwise
