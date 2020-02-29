@@ -6,7 +6,7 @@ typedef unsigned char byte;
 
 void printError(const std::string &msg) {
     fprintf(stderr, "%s", msg.c_str());
-    exit(0);
+    exit(1);
 }
 
 struct ImageFile {
@@ -64,10 +64,10 @@ struct Image {
     }
 
     void horizontal() {
-        for (int i = 0, j = height - 1; i < j; ++i, --j) {
-            for (int k = 0; k < width; ++k) {
-                int f = k * PIXEL_SIZE + i * width * PIXEL_SIZE;
-                int s = k * PIXEL_SIZE + j * width * PIXEL_SIZE;
+        for (int i = 0; i < height; ++i) {
+            for (int j = 0, k = width - 1; j < k; ++j, --k) {
+                int f = j * PIXEL_SIZE + i * width * PIXEL_SIZE;
+                int s = k * PIXEL_SIZE + i * width * PIXEL_SIZE;
                 for (int z = 0; z < PIXEL_SIZE; ++z) {
                     std::swap(data[f + z], data[s + z]);
                 }
@@ -76,10 +76,10 @@ struct Image {
     }
 
     void vertical() {
-        for (int i = 0; i < height; ++i) {
-            for (int j = 0, k = width - 1; j < k; ++j, --k) {
-                int f = j * PIXEL_SIZE + i * width * PIXEL_SIZE;
-                int s = k * PIXEL_SIZE + i * width * PIXEL_SIZE;
+        for (int i = 0, j = height - 1; i < j; ++i, --j) {
+            for (int k = 0; k < width; ++k) {
+                int f = k * PIXEL_SIZE + i * width * PIXEL_SIZE;
+                int s = k * PIXEL_SIZE + j * width * PIXEL_SIZE;
                 for (int z = 0; z < PIXEL_SIZE; ++z) {
                     std::swap(data[f + z], data[s + z]);
                 }
@@ -132,7 +132,7 @@ struct Image {
         }
         fwrite(data, sizeof(byte), IMAGE_SIZE, imageFile.getData());
         if (ferror(imageFile.getData())) {
-            printError("Something happened while converting");
+            printError("Something happened while writing result to output file");
         }
     }
 
