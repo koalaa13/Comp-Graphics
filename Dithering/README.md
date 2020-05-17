@@ -1,6 +1,9 @@
-# Draw a line on PNM(P5) format images.
+# Applies some dithering algorithm to PNM(P5) format image.
 Argument for program: \<input filename\> \<output filename\> \<gradient\> \<dithering mode\> \<bits per pixel\> \<gamma\>.\
 If gamma equals to 0 sRGB will be used.
+
+Bit per pixel argument:\
+Determines how many bits we can use for one pixel\
 
 Gradient argument:\
 0 - take an input image\
