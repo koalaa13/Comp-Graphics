@@ -3,7 +3,7 @@ Argument for program: \<input filename\> \<output filename\> \<gradient\> \<dith
 If gamma equals to 0 sRGB will be used.
 
 Bit per pixel argument:\
-Determines how many bits we can use for one pixel\
+Determines how many bits we can use for one pixel
 
 Gradient argument:\
 0 - take an input image\
