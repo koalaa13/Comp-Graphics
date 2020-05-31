@@ -66,26 +66,25 @@ void PNMImage::fillHorizontalGrad() {
 void PNMImage::ditheringFloydSteinberg(int bit, double gamma) {
     std::vector<byte> values = getValues(bit);
     std::vector<int> error0(width), error1(width);
-    double one = 1. / 16., three = 3. / 16., five = 5. / 16., seven = 7. / 16.;
+    double five = 5. / 16., three = 3. / 16., seven = 7. / 16., one = 1. / 16.;
     for (int i = 0; i < height; ++i) {
         for (int j = 0; j < width; ++j) {
             int ind = j + i * width;
-            byte curValue = getValueWithGamma(std::min(data[ind] + error0[j], pixelSize), gamma), newValue;
+            byte curValue = getValueWithGamma(std::min((int) (data[ind]) + error0[j], pixelSize), gamma), newValue;
             int newValueInd = std::lower_bound(values.begin(), values.end(), curValue) - values.begin();
             byte rightValue = values[newValueInd];
-            int err;
+            double err;
             if (rightValue == curValue) {
                 err = 0;
                 newValue = rightValue;
             } else {
                 byte leftValue = values[newValueInd - 1];
                 if (curValue - leftValue < rightValue - curValue) {
-                    err = curValue - leftValue;
                     newValue = leftValue;
                 } else {
-                    err = rightValue - curValue;
                     newValue = rightValue;
                 }
+                err = curValue - newValue;
             }
             setPixelColor(j, i, newValue);
             error1[j] += five * err;
@@ -156,12 +155,11 @@ void PNMImage::ditheringJarvisJudiceNinke(int bit, double gamma) {
             } else {
                 byte leftValue = values[newValueInd - 1];
                 if (curValue - leftValue < rightValue - curValue) {
-                    err = curValue - leftValue;
                     newValue = leftValue;
                 } else {
-                    err = rightValue - curValue;
                     newValue = rightValue;
                 }
+                err = curValue - newValue;
             }
             setPixelColor(j, i, newValue);
             error1[j] += seven * err;
@@ -199,7 +197,7 @@ void PNMImage::randomDithering(int bit, double gamma) {
     for (int i = 0; i < height; ++i) {
         for (int j = 0; j < width; ++j) {
             int ind = j + i * width;
-            int add = gen() % bound;
+            unsigned long add = gen() % bound;
             byte curValue = getValueWithGamma(std::min((int) (data[ind] + add), pixelSize), gamma), newValue;
             int newValueInd = std::lower_bound(values.begin(), values.end(), curValue) - values.begin();
             byte rightValue = values[newValueInd];
@@ -251,19 +249,18 @@ void PNMImage::ditheringSierra3(int bit, double gamma) {
             byte curValue = getValueWithGamma(std::min(data[ind] + error0[j], pixelSize), gamma), newValue;
             int newValueInd = std::lower_bound(values.begin(), values.end(), curValue) - values.begin();
             byte rightValue = values[newValueInd];
-            int err;
+            double err;
             if (rightValue == curValue) {
                 err = 0;
                 newValue = rightValue;
             } else {
                 byte leftValue = values[newValueInd - 1];
                 if (curValue - leftValue < rightValue - curValue) {
-                    err = curValue - leftValue;
                     newValue = leftValue;
                 } else {
-                    err = rightValue - curValue;
                     newValue = rightValue;
                 }
+                err = curValue - newValue;
             }
             setPixelColor(j, i, newValue);
             error1[j] += five * err;
@@ -301,19 +298,18 @@ void PNMImage::ditheringAtkinson(int bit, double gamma) {
             byte curValue = getValueWithGamma(std::min(data[ind] + error0[j], pixelSize), gamma), newValue;
             int newValueInd = std::lower_bound(values.begin(), values.end(), curValue) - values.begin();
             byte rightValue = values[newValueInd];
-            int err;
+            double err;
             if (rightValue == curValue) {
                 err = 0;
                 newValue = rightValue;
             } else {
                 byte leftValue = values[newValueInd - 1];
                 if (curValue - leftValue < rightValue - curValue) {
-                    err = curValue - leftValue;
                     newValue = leftValue;
                 } else {
-                    err = rightValue - curValue;
                     newValue = rightValue;
                 }
+                err = curValue - newValue;
             }
             setPixelColor(j, i, newValue);
             error1[j] += one * err;
