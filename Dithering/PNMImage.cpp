@@ -65,12 +65,12 @@ void PNMImage::fillHorizontalGrad() {
 
 void PNMImage::ditheringFloydSteinberg(int bit, double gamma) {
     std::vector<byte> values = getValues(bit);
-    std::vector<int> error0(width), error1(width);
+    std::vector<double> error0(width), error1(width);
     double five = 5. / 16., three = 3. / 16., seven = 7. / 16., one = 1. / 16.;
     for (int i = 0; i < height; ++i) {
         for (int j = 0; j < width; ++j) {
             int ind = j + i * width;
-            byte curValue = getValueWithGamma(std::min((int) (data[ind]) + error0[j], pixelSize), gamma), newValue;
+            byte curValue = getValueWithGamma(std::min(data[ind] + (int) error0[j], pixelSize), gamma), newValue;
             int newValueInd = std::lower_bound(values.begin(), values.end(), curValue) - values.begin();
             byte rightValue = values[newValueInd];
             double err;
@@ -140,12 +140,12 @@ void PNMImage::setPixelColor(int x, int y, byte value) {
 
 void PNMImage::ditheringJarvisJudiceNinke(int bit, double gamma) {
     std::vector<byte> values = getValues(bit);
-    std::vector<int> error0(width), error1(width), error2(width);
+    std::vector<double> error0(width), error1(width), error2(width);
     double one = 1. / 48., three = 3. / 48., five = 5. / 48., seven = 7. / 48.;
     for (int i = 0; i < height; ++i) {
         for (int j = 0; j < width; ++j) {
             int ind = j + i * width;
-            byte curValue = getValueWithGamma(std::min(data[ind] + error0[j], pixelSize), gamma), newValue;
+            byte curValue = getValueWithGamma(std::min(data[ind] + (int) error0[j], pixelSize), gamma), newValue;
             int newValueInd = std::lower_bound(values.begin(), values.end(), curValue) - values.begin();
             byte rightValue = values[newValueInd];
             int err;
@@ -241,12 +241,12 @@ void PNMImage::noDithering(int bit, double gamma) {
 
 void PNMImage::ditheringSierra3(int bit, double gamma) {
     std::vector<byte> values = getValues(bit);
-    std::vector<int> error0(width), error1(width), error2(width);
+    std::vector<double> error0(width), error1(width), error2(width);
     double two = 2. / 32., three = 3. / 32., four = 4. / 32., five = 5. / 32.;
     for (int i = 0; i < height; ++i) {
         for (int j = 0; j < width; ++j) {
             int ind = j + i * width;
-            byte curValue = getValueWithGamma(std::min(data[ind] + error0[j], pixelSize), gamma), newValue;
+            byte curValue = getValueWithGamma(std::min(data[ind] + (int) error0[j], pixelSize), gamma), newValue;
             int newValueInd = std::lower_bound(values.begin(), values.end(), curValue) - values.begin();
             byte rightValue = values[newValueInd];
             double err;
@@ -290,12 +290,12 @@ void PNMImage::ditheringSierra3(int bit, double gamma) {
 
 void PNMImage::ditheringAtkinson(int bit, double gamma) {
     std::vector<byte> values = getValues(bit);
-    std::vector<int> error0(width), error1(width), error2(width);
+    std::vector<double> error0(width), error1(width), error2(width);
     double one = 1. / 8.;
     for (int i = 0; i < height; ++i) {
         for (int j = 0; j < width; ++j) {
             int ind = j + i * width;
-            byte curValue = getValueWithGamma(std::min(data[ind] + error0[j], pixelSize), gamma), newValue;
+            byte curValue = getValueWithGamma(std::min(data[ind] + (int) error0[j], pixelSize), gamma), newValue;
             int newValueInd = std::lower_bound(values.begin(), values.end(), curValue) - values.begin();
             byte rightValue = values[newValueInd];
             double err;
