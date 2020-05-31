@@ -7,6 +7,7 @@
 
 #include <stdexcept>
 #include <cstdio>
+#include "algorithm"
 
 struct ImageFile {
     explicit ImageFile(char *filename, const char *mode);

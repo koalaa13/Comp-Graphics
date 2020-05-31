@@ -2,6 +2,7 @@
 // Created by koalaa13 on 3/28/20.
 //
 
+#include <vector>
 #include "PNMImage.h"
 
 PNMImage::PNMImage(const ImageFile &imageFile) {
@@ -40,40 +41,41 @@ void PNMImage::writeToFile(const ImageFile &imageFile) {
     }
 }
 
-void PNMImage::setPixelColor(int x, int y, int intensity, int brightness, double gamma) {
+void PNMImage::setPixelColor(int x, int y, int lineColor, int brightness, double gamma, bool srgb) {
     if (x < 0 || x > width || y < 0 || y > height) {
         return;
     }
     int ind = x + y * width;
-    double backgroundColor = ((double) data[ind]) / pixelSize;
-    double lineColor = backgroundColor * intensity / pixelSize;
-    double alpha = brightness / (double) pixelSize;
-    data[ind] = pixelSize * pow(alpha * pow(lineColor, gamma) + (1. - alpha) * pow(backgroundColor, gamma), 1. / gamma);
+    double intensity = 1. - ((double) lineColor) / pixelSize;
+    double backgroundColor = gammaCorrection(((double) data[ind]) / pixelSize, gamma, srgb, false);
+    data[ind] =
+            gammaCorrection(intensity * (((double) brightness) / pixelSize) + (1. - intensity) * backgroundColor,
+                            1. / gamma, srgb, true) * pixelSize;
 }
 
-void PNMImage::drawLine(int brightness, double thickness, int x0, int y0, int x1, int y1, double gamma) {
+void PNMImage::drawLine(int brightness, double thickness, int x0, int y0, int x1, int y1, double gamma, bool srgb) {
     int begX = std::min(x0, x1), endX = std::max(x0, x1);
     int begY = std::min(y0, y1), endY = std::max(y0, y1);
     Line line(x0, y0, x1, y1);
 
     if (x0 == x1) {
-        begX -= (int) (thickness / 2);
-        endX += (int) (thickness / 2);
+        begX -= (int) thickness / 2;
+        endX += (int) thickness / 2;
     }
 
     if (y0 == y1) {
-        begY -= (int) (thickness / 2);
-        endY += (int) (thickness / 2);
+        begY -= (int) thickness / 2;
+        endY += (int) thickness / 2;
     }
 
     for (int curX = begX; curX <= endX; ++curX) {
         for (int curY = begY; curY <= endY; ++curY) {
-            setPixelColor(curX, curY, getColorIntensity(line, curX, curY, thickness), brightness, gamma);
+            setPixelColor(curX, curY, getLineColor(line, curX, curY, thickness), brightness, gamma, srgb);
         }
     }
 }
 
-byte PNMImage::getColorIntensity(const Line &line, int x, int y, double thickness) const {
+byte PNMImage::getLineColor(const Line &line, int x, int y, double thickness) const {
     double dist = line.getDistToPoint(x, y);
     if (thickness >= 1.) {
         if (dist > thickness) {
@@ -85,5 +87,33 @@ byte PNMImage::getColorIntensity(const Line &line, int x, int y, double thicknes
             return pixelSize;
         }
         return (byte) (pixelSize - thickness * pixelSize);
+    }
+}
+
+double PNMImage::sRGB(double col) {
+    if (col <= 0.0031308) {
+        return 12.92 * col;
+    } else {
+        return (211 * pow(col, 5. / 12.) - 11) / 200;
+    }
+}
+
+double PNMImage::revsRGB(double col) {
+    if (col <= 0.04045) {
+        return col / 12.92;
+    } else {
+        return pow((200 * col + 11) / 211, 12. / 5.);
+    }
+}
+
+double PNMImage::gammaCorrection(double u, double gamma, bool srgb, bool rev) {
+    if (srgb) {
+        if (rev) {
+            return revsRGB(u);
+        } else {
+            return sRGB(u);
+        }
+    } else {
+        return pow(u, gamma);
     }
 }

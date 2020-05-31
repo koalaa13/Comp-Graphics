@@ -45,11 +45,11 @@ void PNMImage::writeToFile(const ImageFile &imageFile) {
 }
 
 void PNMImage::fillHorizontalGrad() {
-    int partSize = height / pixelSize, left = height % pixelSize;
-    int colAdd = partSize == 0 ? pixelSize / height : 1, colAddLeft = partSize == 0 ? pixelSize % height : 0;
-    for (int i = 0, fill = 0, curCol = pixelSize; i < height; ++i) {
-        for (int j = 0; j < width; ++j) {
-            int ind = j + i * width;
+    int partSize = width / pixelSize, left = width % pixelSize;
+    int colAdd = partSize == 0 ? pixelSize / width : 1, colAddLeft = partSize == 0 ? pixelSize % width : 0;
+    for (int i = 0, fill = 0, curCol = 0; i < width; ++i) {
+        for (int j = 0; j < height; ++j) {
+            int ind = j * width + i;
             data[ind] = curCol;
         }
         fill++;
@@ -57,7 +57,7 @@ void PNMImage::fillHorizontalGrad() {
         if (fill == curPartSize) {
             fill = 0;
             left--;
-            curCol -= colAdd + (colAddLeft > 0);
+            curCol += colAdd + (colAddLeft > 0);
             colAddLeft--;
         }
     }
@@ -70,7 +70,7 @@ void PNMImage::ditheringFloydSteinberg(int bit, double gamma) {
     for (int i = 0; i < height; ++i) {
         for (int j = 0; j < width; ++j) {
             int ind = j + i * width;
-            byte curValue = data[ind] + error0[j], newValue;
+            byte curValue = getValueWithGamma(std::min(data[ind] + error0[j], pixelSize), gamma), newValue;
             int newValueInd = std::lower_bound(values.begin(), values.end(), curValue) - values.begin();
             byte rightValue = values[newValueInd];
             int err;
@@ -87,7 +87,7 @@ void PNMImage::ditheringFloydSteinberg(int bit, double gamma) {
                     newValue = rightValue;
                 }
             }
-            setPixelColor(j, i, newValue, gamma);
+            setPixelColor(j, i, newValue);
             error1[j] += five * err;
             if (j - 1 >= 0) {
                 error1[j - 1] += three * err;
@@ -131,12 +131,12 @@ std::vector<byte> PNMImage::getValues(int bit) const {
     return res;
 }
 
-void PNMImage::setPixelColor(int x, int y, byte value, double gamma) {
+void PNMImage::setPixelColor(int x, int y, byte value) {
     if (x < 0 || x > width || y < 0 || y > height) {
         return;
     }
     int ind = x + y * width;
-    data[ind] = pow(((double) value) / ((double) pixelSize), gamma) * pixelSize;
+    data[ind] = value;
 }
 
 void PNMImage::ditheringJarvisJudiceNinke(int bit, double gamma) {
@@ -146,7 +146,7 @@ void PNMImage::ditheringJarvisJudiceNinke(int bit, double gamma) {
     for (int i = 0; i < height; ++i) {
         for (int j = 0; j < width; ++j) {
             int ind = j + i * width;
-            byte curValue = std::min(data[ind] + error0[j], pixelSize), newValue;
+            byte curValue = getValueWithGamma(std::min(data[ind] + error0[j], pixelSize), gamma), newValue;
             int newValueInd = std::lower_bound(values.begin(), values.end(), curValue) - values.begin();
             byte rightValue = values[newValueInd];
             int err;
@@ -163,7 +163,7 @@ void PNMImage::ditheringJarvisJudiceNinke(int bit, double gamma) {
                     newValue = rightValue;
                 }
             }
-            setPixelColor(j, i, newValue, gamma);
+            setPixelColor(j, i, newValue);
             error1[j] += seven * err;
             error2[j] += five * err;
             if (j + 1 < width) {
@@ -192,35 +192,15 @@ void PNMImage::ditheringJarvisJudiceNinke(int bit, double gamma) {
 }
 
 void PNMImage::randomDithering(int bit, double gamma) {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    int bound = (1 << (9 - bit));
     std::vector<byte> values = getValues(bit);
     for (int i = 0; i < height; ++i) {
         for (int j = 0; j < width; ++j) {
             int ind = j + i * width;
-            byte curValue = data[ind], newValue;
-            int newValueInd = std::lower_bound(values.begin(), values.end(), curValue) - values.begin();
-            byte rightValue = values[newValueInd];
-            if (rightValue == curValue) {
-                newValue = rightValue;
-            } else {
-                byte leftValue = values[newValueInd - 1];
-                byte random = rand() % (pixelSize + 1);
-                if (random < curValue) {
-                    newValue = leftValue;
-                } else {
-                    newValue = rightValue;
-                }
-            }
-            setPixelColor(j, i, newValue, gamma);
-        }
-    }
-}
-
-void PNMImage::noDithering(int bit, double gamma) {
-    std::vector<byte> values = getValues(bit);
-    for (int i = 0; i < height; ++i) {
-        for (int j = 0; j < width; ++j) {
-            int ind = j + i * width;
-            byte curValue = data[ind], newValue;
+            int add = gen() % bound;
+            byte curValue = getValueWithGamma(std::min((int) (data[ind] + add), pixelSize), gamma), newValue;
             int newValueInd = std::lower_bound(values.begin(), values.end(), curValue) - values.begin();
             byte rightValue = values[newValueInd];
             if (rightValue == curValue) {
@@ -233,7 +213,30 @@ void PNMImage::noDithering(int bit, double gamma) {
                     newValue = rightValue;
                 }
             }
-            setPixelColor(j, i, newValue, gamma);
+            setPixelColor(j, i, newValue);
+        }
+    }
+}
+
+void PNMImage::noDithering(int bit, double gamma) {
+    std::vector<byte> values = getValues(bit);
+    for (int i = 0; i < height; ++i) {
+        for (int j = 0; j < width; ++j) {
+            int ind = j + i * width;
+            byte curValue = getValueWithGamma(data[ind], gamma), newValue;
+            int newValueInd = std::lower_bound(values.begin(), values.end(), curValue) - values.begin();
+            byte rightValue = values[newValueInd];
+            if (rightValue == curValue) {
+                newValue = rightValue;
+            } else {
+                byte leftValue = values[newValueInd - 1];
+                if (curValue - leftValue < rightValue - curValue) {
+                    newValue = leftValue;
+                } else {
+                    newValue = rightValue;
+                }
+            }
+            setPixelColor(j, i, newValue);
         }
     }
 }
@@ -245,7 +248,7 @@ void PNMImage::ditheringSierra3(int bit, double gamma) {
     for (int i = 0; i < height; ++i) {
         for (int j = 0; j < width; ++j) {
             int ind = j + i * width;
-            byte curValue = std::min(data[ind] + error0[j], pixelSize), newValue;
+            byte curValue = getValueWithGamma(std::min(data[ind] + error0[j], pixelSize), gamma), newValue;
             int newValueInd = std::lower_bound(values.begin(), values.end(), curValue) - values.begin();
             byte rightValue = values[newValueInd];
             int err;
@@ -262,7 +265,7 @@ void PNMImage::ditheringSierra3(int bit, double gamma) {
                     newValue = rightValue;
                 }
             }
-            setPixelColor(j, i, newValue, gamma);
+            setPixelColor(j, i, newValue);
             error1[j] += five * err;
             error2[j] += three * err;
             if (j + 1 < width) {
@@ -295,7 +298,7 @@ void PNMImage::ditheringAtkinson(int bit, double gamma) {
     for (int i = 0; i < height; ++i) {
         for (int j = 0; j < width; ++j) {
             int ind = j + i * width;
-            byte curValue = std::min(data[ind] + error0[j], pixelSize), newValue;
+            byte curValue = getValueWithGamma(std::min(data[ind] + error0[j], pixelSize), gamma), newValue;
             int newValueInd = std::lower_bound(values.begin(), values.end(), curValue) - values.begin();
             byte rightValue = values[newValueInd];
             int err;
@@ -312,7 +315,7 @@ void PNMImage::ditheringAtkinson(int bit, double gamma) {
                     newValue = rightValue;
                 }
             }
-            setPixelColor(j, i, newValue, gamma);
+            setPixelColor(j, i, newValue);
             error1[j] += one * err;
             error2[j] += one * err;
             if (j + 1 < width) {
@@ -347,7 +350,7 @@ void PNMImage::orderedDithering(int bit, double gamma) {
     for (int i = 0; i < height; ++i) {
         for (int j = 0; j < width; ++j) {
             int ind = j + i * width;
-            byte curValue = std::min(pixelSize, data[ind] + matrix[i % N][j % N]), newValue;
+            byte curValue = getValueWithGamma(std::min(pixelSize, data[ind] + matrix[i % N][j % N]), gamma), newValue;
             int newValueInd = std::lower_bound(values.begin(), values.end(), curValue) - values.begin();
             byte rightValue = values[newValueInd];
             if (rightValue == curValue) {
@@ -360,7 +363,7 @@ void PNMImage::orderedDithering(int bit, double gamma) {
                     newValue = rightValue;
                 }
             }
-            setPixelColor(j, i, newValue, gamma);
+            setPixelColor(j, i, newValue);
         }
     }
 }
@@ -376,7 +379,7 @@ void PNMImage::halftone4x4Dithering(int bit, double gamma) {
     for (int i = 0; i < height; ++i) {
         for (int j = 0; j < width; ++j) {
             int ind = j + i * width;
-            byte curValue = std::min(pixelSize, data[ind] + matrix[i % N][j % N]), newValue;
+            byte curValue = getValueWithGamma(std::min(pixelSize, data[ind] + matrix[i % N][j % N]), gamma), newValue;
             int newValueInd = std::lower_bound(values.begin(), values.end(), curValue) - values.begin();
             byte rightValue = values[newValueInd];
             if (rightValue == curValue) {
@@ -389,7 +392,13 @@ void PNMImage::halftone4x4Dithering(int bit, double gamma) {
                     newValue = rightValue;
                 }
             }
-            setPixelColor(j, i, newValue, gamma);
+            setPixelColor(j, i, newValue);
         }
     }
 }
+
+byte PNMImage::getValueWithGamma(byte value, double gamma) const {
+    return pow(((double) value) / ((double) pixelSize), gamma) * pixelSize;
+}
+
+

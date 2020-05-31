@@ -6,7 +6,6 @@
 #define HW2_UTILS_H
 
 #include <string>
-#include "ImageFile.h"
 
 typedef unsigned char byte;
 

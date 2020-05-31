@@ -10,6 +10,8 @@
 #include "ImageFile.h"
 #include "cmath"
 #include <iostream>
+#include "algorithm"
+#include <random>
 
 typedef unsigned char byte;
 
@@ -42,7 +44,9 @@ private:
 
     std::vector<byte> getValues(int bit) const;
 
-    void setPixelColor(int x, int y, byte value, double gamma);
+    void setPixelColor(int x, int y, byte value);
+
+    byte getValueWithGamma(byte value, double gamma) const;
 
     int width, height, pixelSize, IMAGE_SIZE;
     byte *data;

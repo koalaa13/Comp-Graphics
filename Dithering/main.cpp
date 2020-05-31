@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
             fprintf(stdout, (char *) "You've chosen Atkinson dithering algorithm.\n");
             image.ditheringAtkinson(bit, gamma);
         }
-        if (type == 7) {
+        if (type == 7) { // OK
             fprintf(stdout, (char *) "You've chosen halftone 4x4 orthogonal algorithm.\n");
             image.halftone4x4Dithering(bit, gamma);
         }

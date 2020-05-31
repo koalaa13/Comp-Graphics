@@ -12,8 +12,10 @@ int main(int argc, char *argv[]) {
         double gamma = 2.2; // Default value for sRGB gamma correction
         ImageFile in(argv[1], "rb");
         PNMImage image(in);
+        bool srgb = true;
         if (argc == 10) {
             gamma = std::stod(argv[9]);
+            srgb = false;
         }
         image.drawLine(std::stoi(argv[3]),
                        std::stod(argv[4]),
@@ -21,7 +23,8 @@ int main(int argc, char *argv[]) {
                        (int) std::stod(argv[6]),
                        (int) std::stod(argv[7]),
                        (int) std::stod(argv[8]),
-                       gamma);
+                       gamma,
+                       srgb);
         ImageFile out(argv[2], "wb");
         image.writeToFile(out);
     } catch (std::exception const &e) {
