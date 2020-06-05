@@ -10,11 +10,14 @@ void testing() {
     for (int r = 0; r < 256; ++r) {
         for (int g = 0; g < 256; ++g) {
             for (int b = 0; b < 256; ++b) {
-                auto res = Converter::toHSL((double) r / 255., (double) g / 255., (double) b / 255.);
-                auto res2 = Converter::fromHSL(std::get<0>(res), std::get<1>(res), std::get<2>(res));
-                int r1 = std::get<0>(res2) * 255;
-                int g1 = std::get<1>(res2) * 255;
-                int b1 = std::get<2>(res2) * 255;
+                auto res = Converter::toYCbCr601((double) r, (double) g, (double) b);
+                auto res2 = Converter::fromYCbCr601(std::get<0>(res), std::get<1>(res), std::get<2>(res));
+                double first = std::get<0>(res2);
+                double second = std::get<1>(res2);
+                double third = std::get<2>(res2);
+                int r1 = (int) first;
+                int g1 = (int) second;
+                int b1 = (int) third;
                 if (abs(r - r1) > diff || abs(g - g1) > diff || abs(b - b1) > diff) {
                     std::cout << "r = " << r << " g = " << g << " b = " << b << '\n';
                     std::cout << "r1 = " << r1 << " g1 = " << g1 << " b1 = " << b1 << '\n';
@@ -29,15 +32,17 @@ void fromRGBToRGB() {
     char *input = "/home/koalaa13/Desktop/comp_graph/HW4/color_sample.pnm";
     char *output = "/home/koalaa13/Desktop/comp_graph/HW4/result.pnm";
 
-    Image res = Converter::convertRGBToHSL(Image(ImageFile(input, "rb")));
+    Image res = Converter::convertRGBToYCbCr601(Image(ImageFile(input, "rb")));
     res.writeToFile(ImageFile(output, "wb"));
 
     char *back = "/home/koalaa13/Desktop/comp_graph/HW4/back.pnm";
-    Image res2 = Converter::convertHSLToRGB(res);
+    Image res2 = Converter::convertYCbCr601ToRGB(res);
     res2.writeToFile(ImageFile(back, "wb"));
 }
 
 int main(int argc, char *argv[]) {
+//    testing();
+//    fromRGBToRGB();
     std::vector<std::string> keys = {"-f", "-t", "-i", "-o"};
     std::unordered_set<std::string> colorSpaces = {"RGB", "HSL", "HSV", "YCbCr.601", "YCbCr.709", "YCoCg", "CMY"};
     std::string fromColorSpace, toColorSpace;
@@ -86,6 +91,9 @@ int main(int argc, char *argv[]) {
                 printError("Number after -i should be equals to 1 or 3");
             }
             for (int j = 0; j < inputCount; ++j) {
+                if (i == argc) {
+                    printError("Should have more filenames after -i");
+                }
                 ins[j] = argv[++i];
                 if (std::find(keys.begin(), keys.end(), ins[j]) != keys.end()) {
                     printError("Should have filename(s) after -i");
@@ -109,6 +117,9 @@ int main(int argc, char *argv[]) {
                 printError("Number after -o should be equals to 1 or 3");
             }
             for (int j = 0; j < outputCount; ++j) {
+                if (i == argc) {
+                    printError("Should have more filenames after -o");
+                }
                 outs[j] = argv[++i];
                 if (std::find(keys.begin(), keys.end(), outs[j]) != keys.end()) {
                     printError("Should have filename(s) after -o");
@@ -161,10 +172,10 @@ int main(int argc, char *argv[]) {
                 rgb = Converter::convertHSLToRGB(input);
             }
             if (fromColorSpace == "HSV") {
-
+                rgb = Converter::convertHSVToRGB(input);
             }
             if (fromColorSpace == "YCbCr.601") {
-
+                rgb = Converter::convertYCbCr601ToRGB(input);
             }
             if (fromColorSpace == "YCbCr.709") {
 
@@ -183,10 +194,10 @@ int main(int argc, char *argv[]) {
                 res = Converter::convertRGBToHSL(rgb);
             }
             if (toColorSpace == "HSV") {
-
+                res = Converter::convertRGBToHSV(rgb);
             }
             if (toColorSpace == "YCbCr.601") {
-
+                res = Converter::convertRGBToYCbCr601(rgb);
             }
             if (toColorSpace == "YCbCr.709") {
 

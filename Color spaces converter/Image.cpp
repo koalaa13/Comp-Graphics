@@ -105,4 +105,5 @@ Image &Image::operator=(const Image &other) {
         throw std::runtime_error("Not enough memory to copy a image");
     }
     memcpy(data, other.data, IMAGE_SIZE);
+    return *this;
 }
