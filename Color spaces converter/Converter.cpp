@@ -220,7 +220,7 @@ Image Converter::convertHSVToRGB(const Image &input) {
 
 std::tuple<double, double, double> Converter::toYCbCr601(double r, double g, double b) {
     double y = 16. + 65.481 * r / 255. + 128.553 * g / 255. + 24.966 * b / 255.;
-    double cb = 128. - 37.797 * r / 255. - 74.203 * g / 255. + 112.0 * b / 255.;
+    double cb = 128. - 37.7968 * r / 255. - 74.2032 * g / 255. + 112.0 * b / 255.;
     double cr = 128 + 112.0 * r / 255. - 93.786 * g / 255. - 18.214 * b / 255.;
     return std::make_tuple(y, cb, cr);
 }
@@ -239,7 +239,9 @@ std::tuple<double, double, double> Converter::fromYCbCr601(double y, double cb, 
 Image Converter::convertRGBToYCbCr601(const Image &input) {
     Image outputImage = input;
     for (int i = 0; i < input.IMAGE_SIZE; i += 3) {
-        std::tuple<double, double, double> res = toYCbCr601(input.data[i], input.data[i + 1], input.data[i + 2]);
+        std::tuple<double, double, double> res = toYCbCr601((double) input.data[i],
+                                                            (double) input.data[i + 1],
+                                                            (double) input.data[i + 2]);
         outputImage.data[i] = std::get<0>(res);
         outputImage.data[i + 1] = std::get<1>(res);
         outputImage.data[i + 2] = std::get<2>(res);
@@ -258,4 +260,44 @@ Image Converter::convertYCbCr601ToRGB(const Image &input) {
     return outputImage;
 }
 
+std::tuple<double, double, double> Converter::toYCbCr709(double r, double g, double b) {
+    double y = 16. + 46.5594 * r / 255. + 156.629 * g / 255. + 15.8118 * b / 255.;
+    double cb = 128. - 25.6642 * r / 255. - 86.3358 * g / 255. + 112.0 * b / 255.;
+    double cr = 128 + 112.0 * r / 255. - 101.73 * g / 255. - 10.2697 * b / 255.;
+    return std::make_tuple(y, cb, cr);
+}
 
+std::tuple<double, double, double> Converter::fromYCbCr709(double y, double cb, double cr) {
+    double r = (255. / 219.) * (y - 16.) + (255. / 224.) * 1.5748 * (cr - 128.);
+    double g = (255. / 219.) * (y - 16.) - (255. / 224.) * 0.187324 * (cb - 128.) -
+               (255. / 224.) * 0.468124 * (cr - 128.);
+    double b = (255. / 219.) * (y - 16.) + (255. / 224.) * 1.8556 * (cb - 128.);
+    r = fmax(r, 0.);
+    g = fmax(g, 0.);
+    b = fmax(b, 0.);
+    return std::make_tuple(r, g, b);
+}
+
+Image Converter::convertRGBToYCbCr709(const Image &input) {
+    Image outputImage = input;
+    for (int i = 0; i < input.IMAGE_SIZE; i += 3) {
+        std::tuple<double, double, double> res = toYCbCr709((double) input.data[i],
+                                                            (double) input.data[i + 1],
+                                                            (double) input.data[i + 2]);
+        outputImage.data[i] = std::get<0>(res);
+        outputImage.data[i + 1] = std::get<1>(res);
+        outputImage.data[i + 2] = std::get<2>(res);
+    }
+    return outputImage;
+}
+
+Image Converter::convertYCbCr709ToRGB(const Image &input) {
+    Image outputImage = input;
+    for (int i = 0; i < input.IMAGE_SIZE; i += 3) {
+        std::tuple<double, double, double> rgb = fromYCbCr709(input.data[i], input.data[i + 1], input.data[i + 2]);
+        outputImage.data[i] = std::get<0>(rgb);
+        outputImage.data[i + 1] = std::get<1>(rgb);
+        outputImage.data[i + 2] = std::get<2>(rgb);
+    }
+    return outputImage;
+}

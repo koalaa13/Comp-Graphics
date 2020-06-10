@@ -26,6 +26,10 @@ struct Converter {
 
     static Image convertYCbCr601ToRGB(const Image &input);
 
+    static Image convertRGBToYCbCr709(const Image &input);
+
+    static Image convertYCbCr709ToRGB(const Image &input);
+
     static Image merge(const Image &im1, const Image &im2, const Image &im3);
 
     static std::tuple<Image, Image, Image> split(const Image &im);
@@ -47,7 +51,6 @@ struct Converter {
     static std::tuple<double, double, double> fromYCbCr709(double y, double cb, double cr);
 
     static std::tuple<double, double, double> toYCbCr709(double r, double g, double b);
-
 };
 
 #endif //HW4_CONVERTER_H
