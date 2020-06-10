@@ -301,3 +301,80 @@ Image Converter::convertYCbCr709ToRGB(const Image &input) {
     }
     return outputImage;
 }
+
+std::tuple<double, double, double> Converter::toYCoCg(double r, double g, double b) {
+    double y = r / 4 + g / 2 + b / 4;
+    double co = r / 2 - b / 2;
+    double cg = -r / 4 + g / 2 - b / 4;
+    return std::make_tuple(y, co + 0.5, cg + 0.5);
+}
+
+std::tuple<double, double, double> Converter::fromYCoCg(double y, double co, double cg) {
+    co -= 0.5;
+    cg -= 0.5;
+    double tmp = y - cg;
+    double r = tmp + co;
+    double g = y + cg;
+    double b = tmp - co;
+    return std::make_tuple(fmax(fmin(r, 1.), 0.), fmax(fmin(g, 1.), 0.), fmax(fmin(b, 1.), 0.));
+}
+
+Image Converter::convertRGBToYCoCg(const Image &input) {
+    Image outputImage = input;
+    for (int i = 0; i < input.IMAGE_SIZE; i += 3) {
+        std::tuple<double, double, double> res = toYCoCg((double) input.data[i] / (double) input.pixelSize,
+                                                         (double) input.data[i + 1] / (double) input.pixelSize,
+                                                         (double) input.data[i + 2] / (double) input.pixelSize);
+        outputImage.data[i] = std::get<0>(res) * (double) input.pixelSize;
+        outputImage.data[i + 1] = std::get<1>(res) * (double) input.pixelSize;
+        outputImage.data[i + 2] = std::get<2>(res) * (double) input.pixelSize;
+    }
+    return outputImage;
+}
+
+Image Converter::convertYCoCgToRGB(const Image &input) {
+    Image outputImage = input;
+    for (int i = 0; i < input.IMAGE_SIZE; i += 3) {
+        std::tuple<double, double, double> rgb = fromYCoCg((double) input.data[i] / (double) input.pixelSize,
+                                                           (double) input.data[i + 1] / (double) input.pixelSize,
+                                                           (double) input.data[i + 2] / (double) input.pixelSize);
+        outputImage.data[i] = std::get<0>(rgb) * (double) input.pixelSize;
+        outputImage.data[i + 1] = std::get<1>(rgb) * (double) input.pixelSize;
+        outputImage.data[i + 2] = std::get<2>(rgb) * (double) input.pixelSize;
+    }
+    return outputImage;
+}
+
+std::tuple<double, double, double> Converter::fromCMY(double c, double m, double y) {
+    return std::make_tuple(1. - c, 1. - m, 1. - y);
+}
+
+std::tuple<double, double, double> Converter::toCMY(double r, double g, double b) {
+    return std::make_tuple(1. - r, 1. - g, 1. - b);
+}
+
+Image Converter::convertRGBToCMY(const Image &input) {
+    Image outputImage = input;
+    for (int i = 0; i < input.IMAGE_SIZE; i += 3) {
+        std::tuple<double, double, double> res = toCMY((double) input.data[i] / (double) input.pixelSize,
+                                                       (double) input.data[i + 1] / (double) input.pixelSize,
+                                                       (double) input.data[i + 2] / (double) input.pixelSize);
+        outputImage.data[i] = std::get<0>(res) * (double) input.pixelSize;
+        outputImage.data[i + 1] = std::get<1>(res) * (double) input.pixelSize;
+        outputImage.data[i + 2] = std::get<2>(res) * (double) input.pixelSize;
+    }
+    return outputImage;
+}
+
+Image Converter::convertCMYToRGB(const Image &input) {
+    Image outputImage = input;
+    for (int i = 0; i < input.IMAGE_SIZE; i += 3) {
+        std::tuple<double, double, double> rgb = fromCMY((double) input.data[i] / (double) input.pixelSize,
+                                                         (double) input.data[i + 1] / (double) input.pixelSize,
+                                                         (double) input.data[i + 2] / (double) input.pixelSize);
+        outputImage.data[i] = std::get<0>(rgb) * (double) input.pixelSize;
+        outputImage.data[i + 1] = std::get<1>(rgb) * (double) input.pixelSize;
+        outputImage.data[i + 2] = std::get<2>(rgb) * (double) input.pixelSize;
+    }
+    return outputImage;
+}

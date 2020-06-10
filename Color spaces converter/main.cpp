@@ -5,45 +5,20 @@
 #include "string"
 #include "unordered_set"
 
-void testing() {
-    const int diff = 1;
-    for (int r = 0; r < 256; ++r) {
-        for (int g = 0; g < 256; ++g) {
-            for (int b = 0; b < 256; ++b) {
-                auto res = Converter::toYCbCr601((double) r, (double) g, (double) b);
-                auto res2 = Converter::fromYCbCr601(std::get<0>(res), std::get<1>(res), std::get<2>(res));
-                double first = std::get<0>(res2);
-                double second = std::get<1>(res2);
-                double third = std::get<2>(res2);
-                int r1 = (int) first;
-                int g1 = (int) second;
-                int b1 = (int) third;
-                if (abs(r - r1) > diff || abs(g - g1) > diff || abs(b - b1) > diff) {
-                    std::cout << "r = " << r << " g = " << g << " b = " << b << '\n';
-                    std::cout << "r1 = " << r1 << " g1 = " << g1 << " b1 = " << b1 << '\n';
-                    return;
-                }
-            }
-        }
-    }
-}
-
 void fromRGBToRGB() {
     char *input = "/home/koalaa13/Desktop/comp_graph/HW4/tiger.pnm";
     char *output = "/home/koalaa13/Desktop/comp_graph/HW4/result.pnm";
 
-    Image res = Converter::convertRGBToYCbCr709(Image(ImageFile(input, "rb")));
+    Image res = Converter::convertRGBToCMY(Image(ImageFile(input, "rb")));
     res.writeToFile(ImageFile(output, "wb"));
 
     char *back = "/home/koalaa13/Desktop/comp_graph/HW4/back.pnm";
-    Image res2 = Converter::convertYCbCr709ToRGB(res);
+    Image res2 = Converter::convertCMYToRGB(res);
     res2.writeToFile(ImageFile(back, "wb"));
 }
 
-
 int main(int argc, char *argv[]) {
 
-//    testing();
 //    fromRGBToRGB();
     try {
         std::vector<std::string> keys = {"-f", "-t", "-i", "-o"};
@@ -184,10 +159,10 @@ int main(int argc, char *argv[]) {
                     rgb = Converter::convertYCbCr709ToRGB(input);
                 }
                 if (fromColorSpace == "YCoCg") {
-
+                    rgb = Converter::convertYCoCgToRGB(input);
                 }
                 if (fromColorSpace == "CMY") {
-
+                    rgb = Converter::convertCMYToRGB(input);
                 }
             }
 
@@ -206,10 +181,10 @@ int main(int argc, char *argv[]) {
                     res = Converter::convertRGBToYCbCr709(rgb);
                 }
                 if (toColorSpace == "YCoCg") {
-
+                    res = Converter::convertRGBToYCoCg(rgb);
                 }
                 if (toColorSpace == "CMY") {
-
+                    res = Converter::convertRGBToCMY(rgb);
                 }
             }
             if (outputCount == 1) {
