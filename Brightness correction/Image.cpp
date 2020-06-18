@@ -142,10 +142,8 @@ void Image::autoSkipCorrection() {
             values.push_back(data[i]);
         }
         std::sort(values.begin(), values.end());
-        for (int i = skip; i < values.size() - skip; ++i) {
-            mn = fmin(mn, values[i]);
-            mx = fmax(mx, values[i]);
-        }
+        mn = values[skip];
+        mx = values[values.size() - 1 - skip];
         for (int i = 0; i < IMAGE_SIZE; ++i) {
             data[i] = doAutoCorrection(data[i], mn, mx);
         }
@@ -155,10 +153,8 @@ void Image::autoSkipCorrection() {
                 values.push_back(data[i]);
             }
             std::sort(values.begin(), values.end());
-            for (int i = skip; i < values.size() - skip; ++i) {
-                mn = fmin(mn, values[i]);
-                mx = fmax(mx, values[i]);
-            }
+            mn = values[skip];
+            mx = values[values.size() - 1 - skip];
             for (int i = 0; i < IMAGE_SIZE; i += 3) {
                 data[i] = doAutoCorrection(data[i], mn, mx);
             }
@@ -167,10 +163,8 @@ void Image::autoSkipCorrection() {
                 values.push_back(getBrightness(data[i], data[i + 1], data[i + 2]));
             }
             std::sort(values.begin(), values.end());
-            for (int i = skip; i < values.size() - skip; ++i) {
-                mn = fmin(mn, values[i]);
-                mx = fmax(mx, values[i]);
-            }
+            mn = values[skip];
+            mx = values[values.size() - 1 - skip];
             for (int i = 0; i < IMAGE_SIZE; ++i) {
                 data[i] = doAutoCorrection(data[i], mn, mx);
             }
