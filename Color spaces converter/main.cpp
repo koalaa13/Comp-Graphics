@@ -6,14 +6,14 @@
 #include "unordered_set"
 
 void fromRGBToRGB() {
-    char *input = "/home/koalaa13/Desktop/comp_graph/HW4/rgb.ppm";
+    char *input = "/home/koalaa13/Desktop/comp_graph/HW4/tiger.pnm";
     char *output = "/home/koalaa13/Desktop/comp_graph/HW4/result.pnm";
 
-    Image res = Converter::convertRGBToYCbCr601(Image(ImageFile(input, "rb")));
+    Image res = Converter::convertRGBToYCbCr709(Image(ImageFile(input, "rb")));
     res.writeToFile(ImageFile(output, "wb"));
 
     char *back = "/home/koalaa13/Desktop/comp_graph/HW4/back.pnm";
-    Image res2 = Converter::convertYCbCr601ToRGB(res);
+    Image res2 = Converter::convertYCbCr709ToRGB(res);
     res2.writeToFile(ImageFile(back, "wb"));
 }
 
