@@ -6,24 +6,35 @@
 #include "unordered_set"
 
 void fromRGBToRGB() {
-    char *input = "/home/koalaa13/Desktop/comp_graph/HW4/tiger.pnm";
+    char *input = "/home/koalaa13/Desktop/comp_graph/HW4/rgb.ppm";
     char *output = "/home/koalaa13/Desktop/comp_graph/HW4/result.pnm";
 
-    Image res = Converter::convertRGBToCMY(Image(ImageFile(input, "rb")));
+    Image res = Converter::convertRGBToYCbCr601(Image(ImageFile(input, "rb")));
     res.writeToFile(ImageFile(output, "wb"));
 
     char *back = "/home/koalaa13/Desktop/comp_graph/HW4/back.pnm";
-    Image res2 = Converter::convertCMYToRGB(res);
+    Image res2 = Converter::convertYCbCr601ToRGB(res);
     res2.writeToFile(ImageFile(back, "wb"));
 }
 
-int main(int argc, char *argv[]) {
+std::vector<std::string> getFilenames(std::string const &temp) {
+    int ind = (int) temp.size() - 1;
+    for (; ind >= 0 && temp[ind] != '.'; --ind) {
+    }
+    if (ind == -1) {
+        throw std::runtime_error("Incorrect template for filenames");
+    }
+    std::string filename = temp.substr(0, ind);
+    std::string ext = temp.substr(ind, temp.size() - ind + 1);
+    return {filename + "_1" + ext, filename + "_2" + ext, filename + "_3" + ext};
+}
 
+int main(int argc, char *argv[]) {
 //    fromRGBToRGB();
     try {
         std::vector<std::string> keys = {"-f", "-t", "-i", "-o"};
         std::unordered_set<std::string> colorSpaces = {"RGB", "HSL", "HSV", "YCbCr.601", "YCbCr.709", "YCoCg", "CMY"};
-        std::string fromColorSpace, toColorSpace;
+        std::string fromColorSpace, toColorSpace, inTemp, outTemp;
         int inputCount, outputCount, maskCheck = 0;
         std::vector<std::string> ins(3), outs(3);
         if (argc == 1) {
@@ -36,7 +47,10 @@ int main(int argc, char *argv[]) {
                     printError("Should have only one key -f");
                 }
                 maskCheck |= 1;
-                fromColorSpace = argv[++i];
+                if (++i == argc) {
+                    printError("Should have color space after -f");
+                }
+                fromColorSpace = argv[i];
                 if (std::find(keys.begin(), keys.end(), fromColorSpace) != keys.end()) {
                     printError("Should have a name of color space after -f");
                 }
@@ -47,7 +61,10 @@ int main(int argc, char *argv[]) {
                     printError("Should have only one key -t");
                 }
                 maskCheck |= 2;
-                toColorSpace = argv[++i];
+                if (++i == argc) {
+                    printError("Should have color space after -t");
+                }
+                toColorSpace = argv[i];
                 if (std::find(keys.begin(), keys.end(), toColorSpace) != keys.end()) {
                     printError("Should have a name of color space after -t");
                 }
@@ -68,15 +85,10 @@ int main(int argc, char *argv[]) {
                 if (inputCount != 1 && inputCount != 3) {
                     printError("Number after -i should be equals to 1 or 3");
                 }
-                for (int j = 0; j < inputCount; ++j) {
-                    if (i == argc) {
-                        printError("Should have more filenames after -i");
-                    }
-                    ins[j] = argv[++i];
-                    if (std::find(keys.begin(), keys.end(), ins[j]) != keys.end()) {
-                        printError("Should have filename(s) after -i");
-                    }
+                if (++i == argc) {
+                    printError("Should have a filename after -i");
                 }
+                inTemp = argv[i];
                 continue;
             }
             if (arg == "-o") {
@@ -94,15 +106,10 @@ int main(int argc, char *argv[]) {
                 if (outputCount != 1 && outputCount != 3) {
                     printError("Number after -o should be equals to 1 or 3");
                 }
-                for (int j = 0; j < outputCount; ++j) {
-                    if (i == argc) {
-                        printError("Should have more filenames after -o");
-                    }
-                    outs[j] = argv[++i];
-                    if (std::find(keys.begin(), keys.end(), outs[j]) != keys.end()) {
-                        printError("Should have filename(s) after -o");
-                    }
+                if (++i == argc) {
+                    printError("Should have a filename after -o");
                 }
+                outTemp = argv[i];
                 continue;
             }
             printError("Incorrect input for a program");
@@ -119,6 +126,16 @@ int main(int argc, char *argv[]) {
         }
         if (colorSpaces.count(toColorSpace) == 0) {
             printError("Incorrect color space for -t");
+        }
+        if (inputCount == 1) {
+            ins[0] = inTemp;
+        } else {
+            ins = getFilenames(inTemp);
+        }
+        if (outputCount == 1) {
+            outs[0] = outTemp;
+        } else {
+            outs = getFilenames(outTemp);
         }
         if (fromColorSpace == toColorSpace) {
             if (inputCount == outputCount) {
