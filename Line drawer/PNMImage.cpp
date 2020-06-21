@@ -47,16 +47,17 @@ void PNMImage::setPixelColor(int x, int y, int lineColor, int brightness, double
     }
     int ind = x + y * width;
     double intensity = 1. - ((double) lineColor) / pixelSize;
-    double backgroundColor = gammaCorrection(((double) data[ind]) / pixelSize, gamma, srgb, false);
+    double backgroundColor = gammaCorrection(((double) data[ind]) / pixelSize, gamma, srgb, true);
     data[ind] =
             gammaCorrection(intensity * (((double) brightness) / pixelSize) + (1. - intensity) * backgroundColor,
-                            1. / gamma, srgb, true) * pixelSize;
+                            1. / gamma, srgb, false) * pixelSize;
 }
 
 void PNMImage::drawLine(int brightness, double thickness, int x0, int y0, int x1, int y1, double gamma, bool srgb) {
     int begX = std::min(x0, x1), endX = std::max(x0, x1);
     int begY = std::min(y0, y1), endY = std::max(y0, y1);
-    Line line(x0, y0, x1, y1);
+    double diffX = x1 - x0, diffY = y1 - y0;
+    Line line(x0 + (diffX / diffY) / 2., y0 + (diffY / diffX) / 2., x1 - (diffX / diffY) / 2., y1 - (diffY / diffX) / 2.);
 
     if (x0 == x1) {
         begX -= (int) thickness / 2;
