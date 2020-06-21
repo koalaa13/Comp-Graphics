@@ -34,6 +34,8 @@ struct Image {
 
     void autoSkipCorrection();
 
+    friend bool operator==(Image const &a, Image const &b);
+
 private:
     static double getBrightness(double const &r, double const &g, double const &b);
 

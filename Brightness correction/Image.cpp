@@ -129,7 +129,7 @@ void Image::autoCorrection() {
 }
 
 double Image::doAutoCorrection(double const &d, double const &mn, double const &mx) const {
-    return fmin(pixelSize, fmax(0., d - mn) * pixelSize / (mx - mn));
+    return fmin(pixelSize, fmax(0., (d - mn) * pixelSize / (mx - mn)));
 }
 
 void Image::autoSkipCorrection() {
@@ -174,5 +174,17 @@ void Image::autoSkipCorrection() {
 
 double Image::getBrightness(double const &r, double const &g, double const &b) {
     return 0.299 * r + 0.587 * g + 0.114 * b;
+}
+
+bool operator==(Image const &a, Image const &b) {
+    bool eq = a.colorSpace == b.colorSpace && a.IMAGE_SIZE == b.IMAGE_SIZE && a.BYTES_PER_PIXEL == b.BYTES_PER_PIXEL &&
+              a.pixelSize == b.pixelSize && a.width == b.width && a.height == b.height;
+    if (!eq) {
+        return eq;
+    }
+    for (int i = 0; i < a.IMAGE_SIZE; ++i) {
+        eq &= a.data[i] == b.data[i];
+    }
+    return eq;
 }
 

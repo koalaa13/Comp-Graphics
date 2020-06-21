@@ -1,7 +1,18 @@
 #include "Image.h"
 #include "Utils.h"
 
+void checkEqImage() {
+    Image im1(ImageFile("/home/koalaa13/Desktop/comp_graph/HW5/601.ppm", "rb"), true);
+    Image im2(ImageFile("/home/koalaa13/Desktop/comp_graph/HW5/601.ppm", "rb"), true);
+    if (im1 == im2) {
+        printf("Images are equal");
+    } else {
+        printf("Images are different");
+    }
+}
+
 int main(int argc, char **argv) {
+//    checkEqImage();
     try {
         if (argc != 6 && argc != 4) {
             printError("Incorrect count of arguments, see usage");
