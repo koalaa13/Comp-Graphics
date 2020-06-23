@@ -8,9 +8,12 @@
 #include <stdexcept>
 #include <cstdio>
 #include "algorithm"
+#include "string"
 
 struct ImageFile {
     explicit ImageFile(char *filename, const char *mode);
+
+    explicit ImageFile(std::string const &filename, const char*mode);
 
     ~ImageFile();
 

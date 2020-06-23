@@ -18,3 +18,5 @@ ImageFile::~ImageFile() {
 FILE *ImageFile::getData() const {
     return data;
 }
+
+ImageFile::ImageFile(std::string const &filename, const char *mode) : ImageFile((char *) filename.c_str(), mode) {}

@@ -17,36 +17,16 @@ typedef unsigned char byte;
 
 struct PNMImage {
 
-    explicit PNMImage(const ImageFile &imageFile, bool grad);
+    explicit PNMImage(const ImageFile &imageFile);
 
     ~PNMImage();
 
-    void writeToFile(const ImageFile &imageFile);
-
-    void ditheringFloydSteinberg(int bit, double gamma);
-
-    void ditheringJarvisJudiceNinke(int bit, double gamma);
-
-    void randomDithering(int bit, double gamma);
-
-    void noDithering(int bit, double gamma);
-
-    void ditheringSierra3(int bit, double gamma);
-
-    void ditheringAtkinson(int bit, double gamma);
-
-    void orderedDithering(int bit, double gamma);
-
-    void halftone4x4Dithering(int bit, double gamma);
+    void writeToFile(const ImageFile &imageFile) const;
 
 private:
-    void fillHorizontalGrad();
+    friend class Dither;
 
-    std::vector<byte> getValues(int bit) const;
-
-    void setPixelColor(int x, int y, byte value);
-
-    byte getValueWithGamma(byte value, double gamma) const;
+    void writeHeaderToFile(const ImageFile &imageFile) const;
 
     int width, height, pixelSize, IMAGE_SIZE;
     byte *data;
