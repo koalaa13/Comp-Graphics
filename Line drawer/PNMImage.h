@@ -9,6 +9,7 @@
 #include "ImageFile.h"
 #include "Line.h"
 #include "cmath"
+#include "algorithm"
 
 typedef unsigned char byte;
 
