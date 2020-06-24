@@ -326,7 +326,7 @@ void Dither::ordered8x8Dithering(PNMImage const &image, bool grad, std::string c
     matrix[7] = {42, 26, 38, 22, 41, 25, 37, 21};
     for (int i = 0; i < N; ++i) {
         for (int j = 0; j < N; ++j) {
-            matrix[i][j] = (matrix[i][j] - 0.5) / (double) (N * N) * (double) image.pixelSize;
+            matrix[i][j] = (matrix[i][j] + 0.5) / (double) (N * N) * (double) image.pixelSize;
         }
     }
     auto *data = getData(image, grad);
@@ -359,7 +359,7 @@ void Dither::halftone4x4Dithering(const PNMImage &image, bool grad, const std::s
     matrix[3] = {5, 9, 3, 1};
     for (int i = 0; i < N; ++i) {
         for (int j = 0; j < N; ++j) {
-            matrix[i][j] = (matrix[i][j] - 0.5) / (double) (N * N) * (double) image.pixelSize;
+            matrix[i][j] = (matrix[i][j] + 0.5) / (double) (N * N) * (double) image.pixelSize;
         }
     }
     auto *data = getData(image, grad);
