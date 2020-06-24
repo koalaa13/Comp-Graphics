@@ -236,9 +236,9 @@ std::tuple<double, double, double> Converter::fromYCbCr601(double y, double cb, 
     double g = (255. / 219.) * (y - 16.) - (255. / 224.) * 1.772 * (0.114 / 0.587) * (cb - 128.) -
                (255. / 224.) * 1.402 * (0.299 / 0.587) * (cr - 128.);
     double b = (255. / 219.) * (y - 16.) + (255. / 224.) * 1.772 * (cb - 128.);
-    r = fmax(r, 0.);
-    g = fmax(g, 0.);
-    b = fmax(b, 0.);
+    r = fmin(255., fmax(r, 0.));
+    g = fmin(255., fmax(g, 0.));
+    b = fmin(255., fmax(b, 0.));
     return std::make_tuple(r, g, b);
 }
 
@@ -284,9 +284,9 @@ std::tuple<double, double, double> Converter::fromYCbCr709(double y, double cb, 
     double g = (255. / 219.) * (y - 16.) - (255. / 224.) * 0.187324 * (cb - 128.) -
                (255. / 224.) * 0.468124 * (cr - 128.);
     double b = (255. / 219.) * (y - 16.) + (255. / 224.) * 1.8556 * (cb - 128.);
-    r = fmax(r, 0.);
-    g = fmax(g, 0.);
-    b = fmax(b, 0.);
+    r = fmin(255., fmax(r, 0.));
+    g = fmin(255., fmax(g, 0.));
+    b = fmin(255., fmax(b, 0.));
     return std::make_tuple(r, g, b);
 }
 
