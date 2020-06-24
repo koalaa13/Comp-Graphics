@@ -1,15 +1,16 @@
-#include "Image.h"
 #include "Utils.h"
+#include "Corrector.h"
 
 void checkEqImage() {
-    Image im1(ImageFile("/home/koalaa13/Desktop/comp_graph/HW5/601.ppm", "rb"), true);
-    Image im2(ImageFile("/home/koalaa13/Desktop/comp_graph/HW5/601.ppm", "rb"), true);
+    Image im1(ImageFile("/home/koalaa13/Desktop/comp_graph/HW5/tiger.pnm", "rb"));
+    Image im2(ImageFile("/home/koalaa13/Desktop/comp_graph/HW5/result.pnm", "rb"));
     if (im1 == im2) {
         printf("Images are equal");
     } else {
         printf("Images are different");
     }
 }
+
 
 int main(int argc, char **argv) {
 //    checkEqImage();
@@ -31,7 +32,7 @@ int main(int argc, char **argv) {
         if (conversionType < 2 && argc != 6) {
             printError("Should have a offset and factor for conversions 0 and 1");
         }
-        Image image(ImageFile(argv[1], "rb"), conversionType % 2 == 1);
+        Image image(ImageFile(argv[1], "rb"));
         if (conversionType < 2) {
             double offset, factor;
             try {
@@ -42,16 +43,28 @@ int main(int argc, char **argv) {
             } catch (std::out_of_range const &e) {
                 printError("Incorrect offset or factor");
             }
-            image.correction(offset, factor);
-        } else {
-            if (conversionType < 4) {
-                image.autoCorrection();
+            if (conversionType == 0) {
+                Corrector::RGBCorrection(image, offset, factor);
             } else {
-                image.autoSkipCorrection();
+                Corrector::YCbCrCorrection(image, offset, factor);
             }
+        }
+        if (conversionType == 2) {
+            Corrector::RGBAutoCorrection(image);
+        }
+        if (conversionType == 3) {
+            Corrector::YCbCrAutoCorrection(image);
+        }
+        if (conversionType == 4) {
+            Corrector::RGBSkipAutoCorrection(image);
+        }
+        if (conversionType == 5) {
+            Corrector::YCbCrSkipAutoCorrection(image);
         }
         image.writeToFile(ImageFile(argv[2], "wb"));
     } catch (std::exception const &e) {
         printError("Error occurred while doing job: " + (std::string) e.what());
     }
+
+    return 0;
 }

@@ -20,7 +20,7 @@ struct Image {
 
     Image(const Image &other);
 
-    explicit Image(const ImageFile &imageFile, bool colorSpace);
+    explicit Image(const ImageFile &imageFile);
 
     ~Image();
 
@@ -28,23 +28,12 @@ struct Image {
 
     Image &operator=(Image const &other);
 
-    void correction(double offset, double factor);
-
-    void autoCorrection();
-
-    void autoSkipCorrection();
-
     friend bool operator==(Image const &a, Image const &b);
 
 private:
-    static double getBrightness(double const &r, double const &g, double const &b);
-
-    double doAutoCorrection(double const &d, double const &mn, double const &mx) const;
-
-    double doCorrection(double const &d, double const &offset, double const &factor) const;
+    friend class Corrector;
 
     int width, height, pixelSize, IMAGE_SIZE, BYTES_PER_PIXEL;
-    bool colorSpace;  // 0 - RGB, 1 - YCbCr
     byte *data;
 };
 
