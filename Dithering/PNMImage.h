@@ -22,8 +22,8 @@ struct PNMImage {
     ~PNMImage();
 
     void writeToFile(const ImageFile &imageFile) const;
-
-private:
+//TODO make it private
+//private:
     friend class Dither;
 
     void writeHeaderToFile(const ImageFile &imageFile) const;

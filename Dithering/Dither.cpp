@@ -79,7 +79,7 @@ double Dither::getLeft(const std::vector<double> &values, double value) {
 
 double Dither::getRight(const std::vector<double> &values, double value) {
     auto it = std::upper_bound(values.begin(), values.end(), value);
-    return it == values.end() ? *values.end() : *it;
+    return it == values.end() ? *(values.end() - 1) : *it;
 }
 
 double Dither::getValueWithGamma(double value, double maxValue, double gamma) {
@@ -326,7 +326,7 @@ void Dither::ordered8x8Dithering(PNMImage const &image, bool grad, std::string c
     matrix[7] = {42, 26, 38, 22, 41, 25, 37, 21};
     for (int i = 0; i < N; ++i) {
         for (int j = 0; j < N; ++j) {
-            matrix[i][j] = (matrix[i][j] + 0.5) / (double) (N * N) * (double) image.pixelSize;
+            matrix[i][j] = ((matrix[i][j] + 0.5) / (double) (N * N) - 0.5);
         }
     }
     auto *data = getData(image, grad);
@@ -338,9 +338,10 @@ void Dither::ordered8x8Dithering(PNMImage const &image, bool grad, std::string c
             int ind = j + i * image.width;
             double leftValue = getValueWithGamma(getLeft(values, data[ind]), image.pixelSize, gamma);
             double rightValue = getValueWithGamma(getRight(values, data[ind]), image.pixelSize, gamma);
-            double value = getValueWithGamma(data[ind], image.pixelSize, gamma);
+            double dist = rightValue - leftValue;
+            double value = getValueWithGamma(data[ind], image.pixelSize, gamma) + matrix[j % N][i % N] * dist;
             byte res;
-            if (value > matrix[j % N][i % N]) {
+            if (fabs(value - rightValue) < fabs(value - leftValue)) {
                 res = (byte) fmin(image.pixelSize, fmax(0., rightValue));
             } else {
                 res = (byte) fmin(image.pixelSize, fmax(0., leftValue));
@@ -359,7 +360,7 @@ void Dither::halftone4x4Dithering(const PNMImage &image, bool grad, const std::s
     matrix[3] = {5, 9, 3, 1};
     for (int i = 0; i < N; ++i) {
         for (int j = 0; j < N; ++j) {
-            matrix[i][j] = (matrix[i][j] + 0.5) / (double) (N * N) * (double) image.pixelSize;
+            matrix[i][j] = (matrix[i][j] - 0.5) / (double) (N * N) - 0.5;
         }
     }
     auto *data = getData(image, grad);
@@ -371,9 +372,10 @@ void Dither::halftone4x4Dithering(const PNMImage &image, bool grad, const std::s
             int ind = j + i * image.width;
             double leftValue = getValueWithGamma(getLeft(values, data[ind]), image.pixelSize, gamma);
             double rightValue = getValueWithGamma(getRight(values, data[ind]), image.pixelSize, gamma);
-            double value = getValueWithGamma(data[ind], image.pixelSize, gamma);
+            double dist = rightValue - leftValue;
+            double value = getValueWithGamma(data[ind], image.pixelSize, gamma) + matrix[j % N][i % N] * dist;
             byte res;
-            if (value > matrix[j % N][i % N]) {
+            if (fabs(rightValue - value) < fabs(leftValue - value)) {
                 res = (byte) fmin(image.pixelSize, fmax(0., rightValue));
             } else {
                 res = (byte) fmin(image.pixelSize, fmax(0., leftValue));
