@@ -1,4 +1,4 @@
-# Convert image from one color space to another.
+# Converts image from one color space to another.
 Keys for a program:\
 -f <from_color_space> - color space to convert from\
 -t <to_color_space> - color space to convert to\
