@@ -3,42 +3,6 @@
 #include "Dither.h"
 #include "set"
 
-void testing() {
-//    const int N = 8;
-//    std::vector<std::vector<double>> matrix(N);
-//    matrix[0] = {0, 48, 12, 60, 3, 51, 15, 63};
-//    matrix[1] = {32, 16, 44, 28, 35, 19, 47, 31};
-//    matrix[2] = {8, 56, 4, 52, 11, 59, 7, 55};
-//    matrix[3] = {40, 24, 36, 20, 43, 27, 39, 23};
-//    matrix[4] = {2, 50, 14, 62, 1, 49, 13, 61};
-//    matrix[5] = {34, 18, 46, 30, 33, 17, 45, 29};
-//    matrix[6] = {10, 58, 6, 54, 9, 57, 5, 53};
-//    matrix[7] = {42, 26, 38, 22, 41, 25, 37, 21};
-//    for (int i = 0; i < N; ++i) {
-//        for (int j = 0; j < N; ++j) {
-//            matrix[i][j] = ((matrix[i][j] + 0.5) / (double) (N * N) - 0.5);
-//        }
-//    }
-    int cnt = 0;
-    PNMImage image(ImageFile("/home/koalaa13/Desktop/comp_graph/HW3/result.pnm", "rb"));
-    for (int i = 0; i < image.width; ++i) {
-        std::set<byte> have;
-        for (int j = 0; j < image.height; ++j) {
-            have.insert(image.data[j * image.width + i]);
-        }
-        if (have.size() == 1) {
-//            double col = i * 255. / (image.width - 1);
-//            std::cerr << col << ' ';
-//            for (int j = 0; j < 8; ++j) {
-//                std::cerr << col + matrix[i % N][j] << ' ';
-//            }
-//            std::cerr << '\n';
-              cnt++;
-        }
-    }
-    std::cerr << cnt << ' ' << image.width;
-}
-
 int main(int argc, char *argv[]) {
     if (argc != 7) {
         printError(
@@ -93,7 +57,6 @@ int main(int argc, char *argv[]) {
     } catch (std::exception const &e) {
         printError("Error occurred while dithering an image: " + (std::string) e.what());
     }
-    testing();
 
     return 0;
 }

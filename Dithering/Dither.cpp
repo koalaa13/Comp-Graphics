@@ -29,6 +29,7 @@ void Dither::randomDithering(const PNMImage &image, bool grad, std::string const
             fwrite(&res, 1, 1, out.getData());
         }
     }
+    free(data);
 }
 
 std::vector<double> Dither::getValues(int maxValue, int bit) {
@@ -118,6 +119,7 @@ void Dither::noDithering(const PNMImage &image, bool grad, const std::string &ou
             fwrite(&res, 1, 1, out.getData());
         }
     }
+    free(data);
 }
 
 double *Dither::getData(PNMImage const &image, bool grad) {
@@ -170,6 +172,7 @@ Dither::FloydSteinbergDithering(const PNMImage &image, bool grad, const std::str
         error0.swap(error1);
         std::fill(error1.begin(), error1.end(), 0);
     }
+    free(data);
 }
 
 void
@@ -221,6 +224,7 @@ Dither::JarvisJudiceNinkeDithering(const PNMImage &image, bool grad, const std::
         error1 = error2;
         std::fill(error2.begin(), error2.end(), 0);
     }
+    free(data);
 }
 
 void Dither::Sierra3Dithering(const PNMImage &image, bool grad, const std::string &output, int bit, double gamma) {
@@ -229,7 +233,7 @@ void Dither::Sierra3Dithering(const PNMImage &image, bool grad, const std::strin
     image.writeHeaderToFile(out);
     std::vector<double> values = getValues(image.pixelSize, bit), error0(image.width), error1(image.width), error2(
             image.width);
-    double one = 1. / 32., two = 2. / 32., three = 3. / 32., four = 4. / 32., five = 5. / 32.;
+    double two = 2. / 32., three = 3. / 32., four = 4. / 32., five = 5. / 32.;
     for (int i = 0; i < image.height; ++i) {
         for (int j = 0; j < image.width; ++j) {
             int ind = j + i * image.width;
@@ -269,6 +273,7 @@ void Dither::Sierra3Dithering(const PNMImage &image, bool grad, const std::strin
         error1 = error2;
         std::fill(error2.begin(), error2.end(), 0);
     }
+    free(data);
 }
 
 void Dither::AtkinsonDithering(const PNMImage &image, bool grad, const std::string &output, int bit, double gamma) {
@@ -311,6 +316,7 @@ void Dither::AtkinsonDithering(const PNMImage &image, bool grad, const std::stri
         error1 = error2;
         std::fill(error2.begin(), error2.end(), 0);
     }
+    free(data);
 }
 
 void Dither::ordered8x8Dithering(PNMImage const &image, bool grad, std::string const &output, int bit, double gamma) {
@@ -349,6 +355,7 @@ void Dither::ordered8x8Dithering(PNMImage const &image, bool grad, std::string c
             fwrite(&res, 1, 1, out.getData());
         }
     }
+    free(data);
 }
 
 void Dither::halftone4x4Dithering(const PNMImage &image, bool grad, const std::string &output, int bit, double gamma) {
@@ -383,4 +390,5 @@ void Dither::halftone4x4Dithering(const PNMImage &image, bool grad, const std::s
             fwrite(&res, 1, 1, out.getData());
         }
     }
+    free(data);
 }
