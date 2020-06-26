@@ -1,5 +1,5 @@
 # Adjusts the brightness of the image.
-Program arguments: \<input_file_name\> \<output_file_name\> \<mode\> \[\<offset\> \<factor\>\]\
+Program arguments: \<input_file_name\> \<output_file_name\> \<mode\> \[\<offset\> \<factor\>\]
 
 Available color modes:\
 0 - apply \<offset\> \<factor\> in color space RGB to every channel.\
